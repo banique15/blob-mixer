@@ -46,15 +46,15 @@ export function Blob({ position = [0, 0, 0], ...props }) {
     }
   }, [envMap])
 
-  // Material spring animation
+  // Material spring animation - smoothly transitions between states
   const materialSpring = useSpring({
     distort: blobConfig.strength,
     frequency: blobConfig.complexity,
     speed: blobConfig.speed,
-    surfaceDistort: 1.0,
-    surfaceFrequency: 1.0,
-    surfaceSpeed: 1.0,
-    numberOfWaves: 4,
+    surfaceDistort: blobConfig.strength * 2, // Surface detail follows strength
+    surfaceFrequency: blobConfig.complexity * 0.8,
+    surfaceSpeed: blobConfig.speed * 1.5,
+    numberOfWaves: Math.floor(blobConfig.complexity * 1.5),
     surfacePoleAmount: 1,
     gooPoleAmount: 1,
     fixNormals: 1.0,
@@ -65,7 +65,12 @@ export function Blob({ position = [0, 0, 0], ...props }) {
     clearcoat: 1,
     clearcoatRoughness: 0.7,
     transmission: 0,
-    config: { tension: 50, friction: 20, precision: 0.00001 }
+    config: {
+      tension: 80,
+      friction: 26,
+      precision: 0.0001,
+      mass: 1
+    }
   })
 
   // Mesh spring animation

@@ -3,69 +3,90 @@ import { useStore } from '../store'
 import { useEffect } from 'react'
 
 export function Controls() {
-  const { setBlobConfig, presets, setSelectedPreset } = useStore()
+  const { blobConfig, setBlobConfig, presets, setSelectedPreset, selectedPreset } = useStore()
   
-  const controls = useControls({
-    preset: {
-      value: 'custom',
-      options: ['custom', ...presets.map(p => p.id)],
+  // Create preset options with emojis and names
+  const presetOptions = presets.reduce((acc, preset) => {
+    acc[preset.name] = preset.id
+    return acc
+  }, {})
+  
+  const [values, set] = useControls(() => ({
+    'AI State': {
+      value: selectedPreset || 'idle',
+      options: presetOptions,
       onChange: (value) => {
-        if (value !== 'custom') {
-          const preset = presets.find(p => p.id === value)
-          if (preset) {
-            setBlobConfig(preset.config)
-            setSelectedPreset(preset.id)
-          }
+        const preset = presets.find(p => p.id === value)
+        if (preset) {
+          setBlobConfig(preset.config)
+          setSelectedPreset(preset.id)
+          // Update all control values
+          set({
+            complexity: preset.config.complexity,
+            speed: preset.config.speed,
+            strength: preset.config.strength,
+            color: preset.config.color1,
+            metalness: preset.config.metalness,
+            roughness: preset.config.roughness,
+            envMapIntensity: preset.config.envMapIntensity,
+          })
         }
       }
     },
     complexity: {
-      value: 3,
+      value: blobConfig.complexity,
       min: 1,
       max: 5,
       step: 0.1,
+      label: 'Complexity',
       onChange: (value) => setBlobConfig({ complexity: value })
     },
     speed: {
-      value: 0.5,
+      value: blobConfig.speed,
       min: 0,
       max: 2,
       step: 0.1,
+      label: 'Speed',
       onChange: (value) => setBlobConfig({ speed: value })
     },
     strength: {
-      value: 0.3,
+      value: blobConfig.strength,
       min: 0,
       max: 1,
       step: 0.05,
+      label: 'Strength',
       onChange: (value) => setBlobConfig({ strength: value })
     },
-    color1: {
-      value: '#ff6b6b',
+    color: {
+      value: blobConfig.color1,
+      label: 'Color',
       onChange: (value) => setBlobConfig({ color1: value })
     },
     metalness: {
-      value: 0.8,
+      value: blobConfig.metalness,
       min: 0,
       max: 1,
       step: 0.1,
+      label: 'Metalness',
       onChange: (value) => setBlobConfig({ metalness: value })
     },
     roughness: {
-      value: 0.2,
+      value: blobConfig.roughness,
       min: 0,
       max: 1,
       step: 0.1,
+      label: 'Roughness',
       onChange: (value) => setBlobConfig({ roughness: value })
     },
     envMapIntensity: {
-      value: 1.5,
+      value: blobConfig.envMapIntensity,
       min: 0,
       max: 3,
       step: 0.1,
+      label: 'Env Intensity',
       onChange: (value) => setBlobConfig({ envMapIntensity: value })
     }
-  })
+  }), [blobConfig, presets, selectedPreset])
   
   return null
 }

@@ -1,19 +1,20 @@
-# 🎨 Blob Mixer - Interactive 3D Blob Generator
+# 🤖 AI Agent Visualizer - Emotional State Representation
 
-An interactive 3D web application that creates mesmerizing animated blob shapes with customizable materials, colors, and effects. Built with React, Three.js, and custom GLSL shaders.
+An interactive 3D web application that visualizes AI agent emotional states through animated blob shapes. Each state (Idle, Thinking, Speaking, Listening, Surprised) has unique visual characteristics powered by custom GLSL shaders. Built with React, Three.js, and custom shader materials.
 
-![Blob Mixer](https://img.shields.io/badge/React-18.2.0-blue)
+![React](https://img.shields.io/badge/React-18.2.0-blue)
 ![Three.js](https://img.shields.io/badge/Three.js-0.158.0-green)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
 ## ✨ Features
 
-- 🌊 **Real-time 3D Blob Animation** - Smooth, organic blob shapes powered by custom GLSL shaders
-- 🎨 **Multiple Gradient Presets** - Cosmic Fusion, Deep Ocean, Sunset Vibes, and more
-- 🎛️ **Interactive Controls** - Adjust complexity, speed, strength, colors, and material properties
+- 🤖 **AI State Visualization** - Visual representation of AI agent emotional states
+- 🎭 **5 Distinct States** - Idle, Thinking, Speaking, Listening, and Surprised
+- 🌊 **Real-time Animation** - Smooth, organic morphing powered by Perlin noise shaders
+- 🎛️ **Interactive Controls** - Fine-tune complexity, speed, strength, and visual properties
 - 🖱️ **Intuitive Camera Controls** - Drag to rotate, scroll to zoom
-- 💫 **Advanced Materials** - Metalness, roughness, and environment mapping
-- 📱 **Responsive Design** - Works on desktop and mobile devices
+- 💫 **Advanced PBR Materials** - Metalness, roughness, and environment mapping
+- 🎨 **Smooth Transitions** - Animated state changes with React Spring
 - ⚡ **High Performance** - Optimized rendering with React Three Fiber
 
 ## 🚀 Quick Start
@@ -51,16 +52,26 @@ Navigate to `http://localhost:3000`
 - **🔍 Scroll Wheel** - Zoom in/out
 - **🎛️ Control Panel** - Adjust blob properties in real-time
 
+### AI Agent States
+
+Each state has unique visual characteristics:
+
+- **😌 Idle** - Calm, gentle movement with cool blue/purple tones
+- **🤔 Thinking** - Moderate complexity with warm orange/yellow colors
+- **🗣️ Speaking** - Fast, energetic with bright cyan/green colors
+- **👂 Listening** - Attentive, smooth with purple gradients
+- **😲 Surprised** - Highly dynamic with intense pink/magenta colors
+
 ### Customization Options
 
-- **Preset** - Choose from pre-configured blob styles
-- **Complexity** - Control the detail level (1-5)
-- **Speed** - Animation speed (0-2)
-- **Strength** - Distortion intensity (0-1)
-- **Color** - Primary blob color
-- **Metalness** - Metallic appearance (0-1)
-- **Roughness** - Surface roughness (0-1)
-- **Env Map Intensity** - Environment reflection strength (0-3)
+- **AI State** - Switch between emotional states
+- **Complexity** (1-5) - Detail level and surface intricacy
+- **Speed** (0-2) - Animation speed
+- **Strength** (0-1) - Distortion intensity
+- **Color** - Primary color
+- **Metalness** (0-1) - Metallic appearance
+- **Roughness** (0-1) - Surface smoothness
+- **Env Intensity** (0-3) - Reflection strength
 
 ## 🏗️ Project Structure
 
@@ -86,12 +97,13 @@ blob-mixer/
 └── README.md
 ```
 
-## 🎨 Available Presets
+## 🎭 AI Agent States
 
-1. **Cosmic Fusion** - Vibrant neon colors with high metalness
-2. **Deep Ocean** - Cool blue tones with medium complexity
-3. **Sunset Vibes** - Warm orange and pink hues
-4. **Neon Dreams** - Intense neon colors with maximum metalness
+1. **😌 Idle** - Calm, waiting state (blue/purple, low activity)
+2. **🤔 Thinking** - Processing, analyzing (orange/yellow, moderate activity)
+3. **🗣️ Speaking** - Active communication (cyan/green, high activity)
+4. **👂 Listening** - Attentive, receiving (purple, moderate activity)
+5. **😲 Surprised** - Reacting, alert (pink/magenta, very high activity)
 
 ## 🛠️ Technology Stack
 
@@ -127,21 +139,23 @@ The blob's appearance is controlled by custom GLSL shaders:
 - **headers.glsl** - Contains Perlin noise functions and uniforms
 - **displacement.glsl** - Vertex displacement logic for blob shape
 
-### Adding New Presets
+### Adding New AI States
 
-Edit `src/store.js` and add new preset configurations:
+Edit `src/store.js` and add new state configurations:
 
 ```javascript
 {
-  id: 'my-preset',
-  name: 'My Preset',
+  id: 'excited',
+  name: '🎉 Excited',
+  description: 'Energetic, enthusiastic',
   config: {
-    complexity: 3,
-    speed: 0.5,
-    strength: 0.3,
-    color1: '#ff6b6b',
-    metalness: 0.8,
-    roughness: 0.2,
+    complexity: 4.5,
+    speed: 1.0,
+    strength: 0.6,
+    color1: '#ffaa00',
+    metalness: 0.9,
+    roughness: 0.15,
+    envMapIntensity: 2.2,
   }
 }
 ```
@@ -177,11 +191,19 @@ Contributions are welcome! Feel free to:
 
 This project is licensed under the MIT License.
 
+## 🎯 Use Cases
+
+- **AI/Chatbot Interfaces** - Visual feedback for conversational AI
+- **Voice Assistants** - State indication for voice interactions
+- **Educational Tools** - Teaching emotional intelligence in AI
+- **Creative Projects** - Artistic representation of AI states
+- **Presentations** - Demonstrating AI behavior concepts
+
 ## 🙏 Acknowledgments
 
-- Inspired by the original Blob Mixer project
 - Perlin noise implementation by Stefan Gustavson
 - Three.js and React Three Fiber communities
+- Inspired by emotional design principles
 
 ## 📧 Contact
 

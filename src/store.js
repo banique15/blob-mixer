@@ -3,91 +3,115 @@ import { create } from 'zustand'
 export const useStore = create((set) => ({
   // Blob configuration
   blobConfig: {
-    complexity: 3,
-    speed: 0.5,
-    strength: 0.3,
-    color1: '#ff6b6b',
-    color2: '#4ecdc4',
-    color3: '#45b7d1',
-    metalness: 0.8,
-    roughness: 0.2,
-    envMapIntensity: 1.5,
+    complexity: 2,
+    speed: 0.3,
+    strength: 0.2,
+    color1: '#4a90e2',
+    color2: '#7b68ee',
+    color3: '#9370db',
+    metalness: 0.6,
+    roughness: 0.3,
+    envMapIntensity: 1.2,
   },
   
   // UI state
   showControls: false,
   isRemixing: false,
-  selectedPreset: null,
+  selectedPreset: 'idle',
   
   // Actions
   setBlobConfig: (config) => set((state) => ({
     blobConfig: { ...state.blobConfig, ...config }
   })),
   
-  toggleControls: () => set((state) => ({ 
-    showControls: !state.showControls 
+  toggleControls: () => set((state) => ({
+    showControls: !state.showControls
   })),
   
   setRemixing: (isRemixing) => set({ isRemixing }),
   
   setSelectedPreset: (preset) => set({ selectedPreset: preset }),
   
-  // Presets
+  // AI Agent State Presets
   presets: [
     {
-      id: 'cosmic',
-      name: 'Cosmic Fusion',
+      id: 'idle',
+      name: '😌 Idle',
+      description: 'Calm, waiting state',
+      config: {
+        complexity: 2,
+        speed: 0.3,
+        strength: 0.2,
+        color1: '#4a90e2',
+        color2: '#7b68ee',
+        color3: '#9370db',
+        metalness: 0.6,
+        roughness: 0.3,
+        envMapIntensity: 1.2,
+      }
+    },
+    {
+      id: 'thinking',
+      name: '🤔 Thinking',
+      description: 'Processing, analyzing',
       config: {
         complexity: 4,
-        speed: 0.4,
+        speed: 0.6,
         strength: 0.4,
-        color1: '#ff00ff',
-        color2: '#00ffff',
-        color3: '#ffff00',
-        metalness: 0.9,
-        roughness: 0.1,
-      }
-    },
-    {
-      id: 'ocean',
-      name: 'Deep Ocean',
-      config: {
-        complexity: 3,
-        speed: 0.3,
-        strength: 0.25,
-        color1: '#001f3f',
-        color2: '#0074D9',
-        color3: '#7FDBFF',
-        metalness: 0.7,
-        roughness: 0.3,
-      }
-    },
-    {
-      id: 'sunset',
-      name: 'Sunset Vibes',
-      config: {
-        complexity: 3,
-        speed: 0.5,
-        strength: 0.3,
         color1: '#ff6b6b',
         color2: '#ffa500',
-        color3: '#ff1493',
-        metalness: 0.6,
-        roughness: 0.4,
+        color3: '#ffcc00',
+        metalness: 0.8,
+        roughness: 0.2,
+        envMapIntensity: 1.5,
       }
     },
     {
-      id: 'neon',
-      name: 'Neon Dreams',
+      id: 'speaking',
+      name: '🗣️ Speaking',
+      description: 'Active, communicating',
+      config: {
+        complexity: 3,
+        speed: 0.8,
+        strength: 0.5,
+        color1: '#00ff88',
+        color2: '#00d4ff',
+        color3: '#00ffff',
+        metalness: 0.9,
+        roughness: 0.15,
+        envMapIntensity: 2.0,
+      }
+    },
+    {
+      id: 'listening',
+      name: '👂 Listening',
+      description: 'Attentive, receiving input',
+      config: {
+        complexity: 2.5,
+        speed: 0.4,
+        strength: 0.25,
+        color1: '#667eea',
+        color2: '#764ba2',
+        color3: '#a855f7',
+        metalness: 0.7,
+        roughness: 0.25,
+        envMapIntensity: 1.3,
+      }
+    },
+    {
+      id: 'surprised',
+      name: '😲 Surprised',
+      description: 'Reacting, alert',
       config: {
         complexity: 5,
-        speed: 0.7,
-        strength: 0.5,
-        color1: '#00ff00',
-        color2: '#ff00ff',
-        color3: '#00ffff',
+        speed: 1.2,
+        strength: 0.7,
+        color1: '#ff00ff',
+        color2: '#ff0080',
+        color3: '#ff1493',
         metalness: 1.0,
         roughness: 0.1,
+        envMapIntensity: 2.5,
       }
     },
   ]
