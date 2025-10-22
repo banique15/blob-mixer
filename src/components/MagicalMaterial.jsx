@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import React, { useRef, useState, forwardRef } from 'react'
 import { MeshPhysicalMaterial, ShaderChunk } from 'three'
 import { useFrame } from '@react-three/fiber'
 
@@ -248,9 +248,33 @@ class MagicalMaterialImpl extends MeshPhysicalMaterial {
 
 const fpsInterval = 1000 / 60
 
-export function MagicalMaterial(props) {
+export const MagicalMaterial = forwardRef((props, ref) => {
   const [material] = useState(() => new MagicalMaterialImpl())
   const localRef = useRef({ lastFrame: 0 })
+  
+  // Update material properties when props change
+  React.useEffect(() => {
+    if (props.color && material.color) {
+      material.color.set(props.color)
+    }
+    if (props.distort !== undefined) material.distort = props.distort
+    if (props.frequency !== undefined) material.frequency = props.frequency
+    if (props.speed !== undefined) material.speed = props.speed
+    if (props.surfaceDistort !== undefined) material.surfaceDistort = props.surfaceDistort
+    if (props.surfaceFrequency !== undefined) material.surfaceFrequency = props.surfaceFrequency
+    if (props.surfaceSpeed !== undefined) material.surfaceSpeed = props.surfaceSpeed
+    if (props.numberOfWaves !== undefined) material.numberOfWaves = props.numberOfWaves
+    if (props.surfacePoleAmount !== undefined) material.surfacePoleAmount = props.surfacePoleAmount
+    if (props.gooPoleAmount !== undefined) material.gooPoleAmount = props.gooPoleAmount
+    if (props.fixNormals !== undefined) material.fixNormals = props.fixNormals
+    if (props.roughness !== undefined) material.roughness = props.roughness
+    if (props.metalness !== undefined) material.metalness = props.metalness
+    if (props.transparent !== undefined) material.transparent = props.transparent
+    if (props.opacity !== undefined) material.opacity = props.opacity
+    if (props.side !== undefined) material.side = props.side
+    if (props.clearcoat !== undefined) material.clearcoat = props.clearcoat
+    if (props.clearcoatRoughness !== undefined) material.clearcoatRoughness = props.clearcoatRoughness
+  }, [props, material])
   
   useFrame(({ clock }) => {
     const now = clock.getElapsedTime() * 1000
@@ -261,7 +285,7 @@ export function MagicalMaterial(props) {
     material.surfaceTime += 0.001 * 0.5 * delta * material.surfaceSpeed
   })
   
-  return <primitive dispose={undefined} object={material} attach="material" {...props} />
-}
+  return <primitive ref={ref} dispose={undefined} object={material} attach="material" />
+})
 
 export default MagicalMaterial
