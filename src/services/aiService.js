@@ -1,5 +1,7 @@
-// AI Service for OpenAI integration with voice synthesis
-const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY
+// AI Service for Vercel AI Gateway integration with voice synthesis
+const AI_GATEWAY_API_KEY = import.meta.env.VITE_AI_GATEWAY_API_KEY
+const AI_GATEWAY_BASE_URL = import.meta.env.VITE_AI_GATEWAY_BASE_URL
+const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY // Fallback for TTS
 
 export class AIService {
   constructor() {
@@ -37,72 +39,134 @@ export class AIService {
     }
   }
 
-  // Chat with OpenAI and get response
+  // Chat with AI using Vercel AI Gateway
   async chat(message, conversationHistory = []) {
-    try {
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${OPENAI_API_KEY}`
+    const chatPayload = {
+      model: 'gpt-4o', // Try GPT-4o (latest available model)
+      messages: [
+        {
+          role: 'system',
+          content: 'You are a friendly AI assistant with emotions. Keep responses concise and conversational (2-3 sentences max). Show personality and react emotionally to what the user says.'
         },
-        body: JSON.stringify({
-          model: 'gpt-4',
-          messages: [
-            {
-              role: 'system',
-              content: 'You are a friendly AI assistant with emotions. Keep responses concise and conversational (2-3 sentences max). Show personality and react emotionally to what the user says.'
-            },
-            ...conversationHistory,
-            { role: 'user', content: message }
-          ],
-          temperature: 0.8,
-          max_tokens: 150
+        ...conversationHistory,
+        { role: 'user', content: message }
+      ],
+      temperature: 0.8,
+      max_tokens: 150
+    }
+
+    // Use Vercel AI Gateway (https://ai-gateway.vercel.sh/v1)
+    if (AI_GATEWAY_API_KEY && AI_GATEWAY_BASE_URL) {
+      try {
+        console.log('🌐 Using Vercel AI Gateway:', AI_GATEWAY_BASE_URL)
+        console.log('📝 Model:', chatPayload.model)
+        
+        const response = await fetch(`${AI_GATEWAY_BASE_URL}/chat/completions`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${AI_GATEWAY_API_KEY}`
+          },
+          body: JSON.stringify(chatPayload)
         })
-      })
 
-      if (!response.ok) {
-        throw new Error(`OpenAI API error: ${response.status}`)
-      }
+        console.log('📡 Response status:', response.status)
 
-      const data = await response.json()
-      const aiResponse = data.choices[0].message.content
-
-      return {
-        text: aiResponse,
-        sentiment: await this.analyzeSentimentWithAI(message, aiResponse)
-      }
-    } catch (error) {
-      console.error('Chat error:', error)
-      
-      // Fallback response if API fails
-      return {
-        text: "I'm having trouble connecting right now. Let's try again!",
-        sentiment: {
-          preset: 'idle',
-          emotion: 'neutral',
-          intensity: 0.5,
-          duration: 2000
+        if (!response.ok) {
+          const errorText = await response.text()
+          console.error('❌ Gateway error response:', errorText)
+          throw new Error(`Vercel AI Gateway error: ${response.status} - ${errorText}`)
         }
+
+        const data = await response.json()
+        console.log('📦 Response received, choices:', data.choices?.length || 0)
+        
+        const aiResponse = data.choices[0].message.content
+        console.log('✅ Vercel AI Gateway success')
+
+        return {
+          text: aiResponse,
+          sentiment: await this.analyzeSentimentWithAI(message, aiResponse)
+        }
+      } catch (error) {
+        console.error('❌ Vercel AI Gateway failed:', error)
+        console.log('🔄 Falling back to OpenAI direct...')
+        
+        // Fallback to OpenAI direct
+        return await this.chatWithOpenAIDirect(message, conversationHistory)
+      }
+    }
+
+    // No gateway configured, use OpenAI direct
+    console.log('⚠️ No AI Gateway configured, using OpenAI direct')
+    return await this.chatWithOpenAIDirect(message, conversationHistory)
+  }
+
+  // OpenAI direct fallback method
+  async chatWithOpenAIDirect(message, conversationHistory = []) {
+    const chatPayload = {
+      model: 'gpt-4o',
+      messages: [
+        {
+          role: 'system',
+          content: 'You are a friendly AI assistant with emotions. Keep responses concise and conversational (2-3 sentences max). Show personality and react emotionally to what the user says.'
+        },
+        ...conversationHistory,
+        { role: 'user', content: message }
+      ],
+      temperature: 0.8,
+      max_tokens: 150
+    }
+
+    if (OPENAI_API_KEY) {
+      try {
+        console.log('🤖 Using OpenAI direct API')
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${OPENAI_API_KEY}`
+          },
+          body: JSON.stringify(chatPayload)
+        })
+
+        if (!response.ok) {
+          throw new Error(`OpenAI API error: ${response.status}`)
+        }
+
+        const data = await response.json()
+        const aiResponse = data.choices[0].message.content
+        console.log('✅ OpenAI direct API success')
+
+        return {
+          text: aiResponse,
+          sentiment: await this.analyzeSentimentWithAI(message, aiResponse)
+        }
+      } catch (error) {
+        console.error('❌ OpenAI direct API failed:', error)
+      }
+    }
+
+    // Final fallback
+    return {
+      text: "I'm having trouble connecting to AI services right now. Please check your API configuration and try again!",
+      sentiment: {
+        preset: 'idle',
+        emotion: 'neutral',
+        intensity: 0.5,
+        duration: 2000
       }
     }
   }
 
-  // Use GPT to analyze sentiment and generate blob parameters
+  // Use GPT to analyze sentiment with Vercel AI Gateway and OpenAI fallback
   async analyzeSentimentWithAI(userMessage, aiResponse) {
-    try {
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${OPENAI_API_KEY}`
-        },
-        body: JSON.stringify({
-          model: 'gpt-3.5-turbo',
-          messages: [
-            {
-              role: 'system',
-              content: `Analyze the emotional context and return ONLY a JSON object with blob visualization parameters.
+    const sentimentPrompt = {
+      model: 'gpt-3.5-turbo', // Use standard model name for Vercel AI Gateway
+      messages: [
+        {
+          role: 'system',
+          content: `Analyze the emotional context and return ONLY a JSON object with blob visualization parameters.
 
 Available states: idle, thinking, speaking, listening, surprised
 Emotions: neutral, excited, irritated, curious, happy, sad, confused
@@ -123,41 +187,79 @@ Format:
   "duration": milliseconds,
   "color": "#hexcolor"
 }`
-            },
-            {
-              role: 'user',
-              content: `User said: "${userMessage}"\nAI responded: "${aiResponse}"\n\nWhat should the blob look like?`
-            }
-          ],
-          temperature: 0.3,
-          max_tokens: 100
-        })
-      })
+        },
+        {
+          role: 'user',
+          content: `User said: "${userMessage}"\nAI responded: "${aiResponse}"\n\nWhat should the blob look like?`
+        }
+      ],
+      temperature: 0.3,
+      max_tokens: 100
+    }
 
-      const data = await response.json()
-      const sentimentText = data.choices[0].message.content
-      
-      // Parse JSON from response
-      const jsonMatch = sentimentText.match(/\{[\s\S]*\}/)
-      if (jsonMatch) {
-        return JSON.parse(jsonMatch[0])
+    // Try Vercel AI Gateway first
+    if (AI_GATEWAY_API_KEY && AI_GATEWAY_BASE_URL) {
+      try {
+        console.log('🎭 Using Vercel AI Gateway for sentiment analysis')
+        const response = await fetch(`${AI_GATEWAY_BASE_URL}/chat/completions`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${AI_GATEWAY_API_KEY}`
+          },
+          body: JSON.stringify(sentimentPrompt)
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          const sentimentText = data.choices[0].message.content
+          
+          // Parse JSON from response
+          const jsonMatch = sentimentText.match(/\{[\s\S]*\}/)
+          if (jsonMatch) {
+            return JSON.parse(jsonMatch[0])
+          }
+        }
+      } catch (error) {
+        console.warn('🎭 Sentiment analysis via Vercel Gateway failed, trying OpenAI direct:', error)
       }
-      
-      // Fallback
-      return {
-        preset: 'speaking',
-        emotion: 'neutral',
-        intensity: 0.5,
-        duration: 2000
+    }
+
+    // Fallback to OpenAI direct
+    if (OPENAI_API_KEY) {
+      try {
+        const directPrompt = { ...sentimentPrompt, model: 'gpt-3.5-turbo' } // Remove prefix for direct API
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${OPENAI_API_KEY}`
+          },
+          body: JSON.stringify(directPrompt)
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          const sentimentText = data.choices[0].message.content
+          
+          // Parse JSON from response
+          const jsonMatch = sentimentText.match(/\{[\s\S]*\}/)
+          if (jsonMatch) {
+            return JSON.parse(jsonMatch[0])
+          }
+        }
+      } catch (error) {
+        console.error('🎭 Sentiment analysis via OpenAI direct also failed:', error)
       }
-    } catch (error) {
-      console.error('Sentiment analysis error:', error)
-      return {
-        preset: 'speaking',
-        emotion: 'neutral',
-        intensity: 0.5,
-        duration: 2000
-      }
+    }
+
+    // Final fallback
+    console.log('⚠️ Using default sentiment analysis')
+    return {
+      preset: 'speaking',
+      emotion: 'neutral',
+      intensity: 0.5,
+      duration: 2000
     }
   }
 

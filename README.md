@@ -1,6 +1,6 @@
 # 🎨 Blob Mixer - AI Voice-Enabled 3D Blob Generator
 
-An interactive 3D blob generator with AI-powered voice conversations and real-time audio-reactive animations. Built with React, Three.js, and OpenAI.
+An interactive 3D blob generator with AI-powered voice conversations and real-time audio-reactive animations. Built with React, Three.js, and Vercel AI Gateway.
 
 ![Blob Mixer Demo](https://img.shields.io/badge/Status-Active-success)
 ![React](https://img.shields.io/badge/React-18.2.0-blue)
@@ -32,7 +32,8 @@ An interactive 3D blob generator with AI-powered voice conversations and real-ti
 
 ### Prerequisites
 - Node.js 16+ and npm
-- OpenAI API key (optional, falls back to browser TTS)
+- Vercel AI Gateway API key (primary AI service)
+- OpenAI API key (optional, for fallback and TTS only)
 
 ### Installation
 
@@ -48,12 +49,22 @@ npm install
 ```
 
 3. **Set up environment variables**
-Create a `.env` file in the root directory:
-```env
-VITE_OPENAI_API_KEY=your_openai_api_key_here
+Copy `.env.example` to `.env` and configure:
+```bash
+cp .env.example .env
 ```
 
-> **Note:** The app works without an API key using browser's Web Speech API, but OpenAI provides better voice quality and sentiment analysis.
+Edit `.env` with your API keys:
+```env
+# Primary AI service (required)
+VITE_AI_GATEWAY_BASE_URL=https://ai-gateway.vercel.sh/v1
+VITE_AI_GATEWAY_API_KEY=your-vercel-ai-gateway-api-key
+
+# Optional: for fallback and TTS only
+# VITE_OPENAI_API_KEY=sk-proj-your-openai-api-key-here
+```
+
+> **Note:** The app primarily uses Vercel AI Gateway. OpenAI API key is optional and only used for fallback functionality and text-to-speech.
 
 4. **Start the development server**
 ```bash
@@ -103,7 +114,7 @@ blob-mixer/
 │   │       ├── ChatPanel.jsx        # Chat UI with voice
 │   │       └── ChatPanel.css        # Chat styling
 │   ├── services/
-│   │   └── aiService.js             # OpenAI integration & TTS
+│   │   └── aiService.js             # Vercel AI Gateway & OpenAI integration
 │   ├── shaders/
 │   │   ├── headers.glsl             # Perlin noise functions
 │   │   └── displacement.glsl        # Vertex displacement
@@ -128,7 +139,8 @@ blob-mixer/
 - **Zustand** - State management
 - **React Spring** - Smooth animations
 - **Leva** - GUI controls
-- **OpenAI API** - GPT-4 chat & TTS
+- **Vercel AI Gateway** - Primary AI service with GPT-4o
+- **OpenAI API** - Fallback & TTS
 - **Vite** - Build tool
 
 ### Key Concepts
@@ -216,16 +228,28 @@ audioMultipliers.current = {
 
 ## 📝 API Keys
 
-### OpenAI API Key
+### Vercel AI Gateway (Primary)
+1. Go to [Vercel Dashboard](https://vercel.com/dashboard)
+2. Create an account or sign in
+3. Navigate to your project settings
+4. Create a new AI Gateway API key
+5. Add to `.env` file as `VITE_AI_GATEWAY_API_KEY`
+
+### OpenAI API Key (Optional - Fallback & TTS)
 1. Go to [OpenAI Platform](https://platform.openai.com/)
 2. Create an account or sign in
 3. Navigate to API Keys
 4. Create a new secret key
-5. Add to `.env` file
+5. Add to `.env` file as `VITE_OPENAI_API_KEY`
 
-**Costs:**
-- GPT-4: ~$0.03 per 1K tokens
-- GPT-3.5-Turbo: ~$0.002 per 1K tokens
+**AI Service Priority:**
+1. **Primary**: Vercel AI Gateway (GPT-4o for chat, GPT-3.5-turbo for sentiment)
+2. **Fallback**: OpenAI Direct API (same models)
+3. **TTS**: Always uses OpenAI Direct API
+
+**Estimated Costs:**
+- GPT-4o: ~$0.005 per 1K tokens (input), ~$0.015 per 1K tokens (output)
+- GPT-3.5-Turbo: ~$0.0005 per 1K tokens (input), ~$0.0015 per 1K tokens (output)
 - TTS: ~$0.015 per 1K characters
 
 ## 🤝 Contributing
